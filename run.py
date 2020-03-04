@@ -4,10 +4,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 import time
-
+from Tour import TourInfo
 
 main_url = 'http://tour.interpark.com/'
 keyword = '로마'
+#상품 정보 담는 TourInfo 리스트
+tour_list = []
 
 driver = wd.Chrome(executable_path='chromedriver.exe')
 
@@ -61,10 +63,21 @@ for page in range(1,2):
             for info in li.find_elements_by_css_selector('.info-row .proInfo'):
                 print( info.text)
 
+            print('금액 : ' , li.find_element_by_css_selector('strong.proPrice').text)
+
             print('------------------------------------------')
+
+            #데이터 모음 (Tour에 삽입)
+            obj = TourInfo(
+                li.find_element_by_css_selector('h5.proTit').text,
+                li.find_element_by_css_selector('strong.proPrice').text,
+                li.find_elements_by_css_selector('.info-row .proInfo')[1].text,
+                li.find_element_by_css_selector('a').get_attribute('onclick'),
+                li.find_element_by_css_selector('img').get_attribute('src')
+             )
+            tour_list.append( obj )
 
     except Exception as e1:
         print('오류', e1)
 
-
-#ㅎㅇ
+print( tour_list,len(tour_list))
