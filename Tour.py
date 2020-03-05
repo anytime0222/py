@@ -13,6 +13,5 @@ class TourInfo:
         self.price = price
         self.area = area
         self.link = link
-        self.img = img
-
+#erg
     
