@@ -16,5 +16,6 @@ class TourInfo:
         self.link = link
         self.img = img
         self.contents = contents
+#마지막
 
     
