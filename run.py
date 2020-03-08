@@ -2,10 +2,15 @@ from selenium import webdriver as wd
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from DBManager import DBHelper as Db
+
+from bs4 import BeautifulSoup as bs
+
 
 import time
 from Tour import TourInfo
 
+db = Db() 
 main_url = 'http://tour.interpark.com/'
 keyword = '로마'
 #상품 정보 담는 TourInfo 리스트
@@ -81,3 +86,56 @@ for page in range(1,2):
         print('오류', e1)
 
 print( tour_list,len(tour_list))
+
+#수집한 정보의 갯수만큼 루프 / 페이지 방문 / 콘텐츠 획득 > db
+for tour in tour_list:
+    print( type(tour) )
+
+    #링크 데이터에서 (새창이 뜸) 실 데이터 획득
+    #분해
+    arr = tour.link.split(',')
+
+    if arr:
+        #대체
+        link = arr[0].replace('searchModule.OnClickDetail(','')
+
+        #슬라이싱 >>> 앞의 ', 뒤에 ' 를 제거함
+        detail_url = link[1:-1]
+
+        driver.get( detail_url )
+
+        time.sleep(2)
+
+        #현재 페이지를 bs의 dom으로 구성
+        soup = bs(driver.page_source,'html.parser')
+
+        #여행상세정보 페이지에서 schedule 정보 긁기
+        data = soup.select('.tip-cover')
+
+        print( type(data) , len(data))
+
+
+
+        #디비에 입력함
+        content_final = ''
+        for c in data[0].contents:
+            content_final = str(c)
+
+
+        db.db_insertCrawlingData(
+            tour.title,
+            tour.price,
+            tour.area,
+            content_final,
+            keyword
+        )
+
+
+
+
+
+#종료
+driver.close()
+driver.quit()
+import sys
+sys.exit()
